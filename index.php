@@ -1,3 +1,27 @@
+<?php
+require_once 'functions.php';
+
+// Handle Login Request
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])) {
+    $email = trim($_POST['email']);
+    $password = trim($_POST['password']);
+
+    if (!empty($email) && !empty($password)) {
+        $user = authenticate_user($email, $password);
+
+        if ($user) {
+            login_user($user);
+            header("Location: dashboard.php"); // Redirect to dashboard
+            exit();
+        } else {
+            $error_message = "Invalid email or password.";
+        }
+    } else {
+        $error_message = "All fields are required.";
+    }
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
