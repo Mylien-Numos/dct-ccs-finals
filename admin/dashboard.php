@@ -1,6 +1,7 @@
 <?php 
-
 require_once '../admin/partials/header.php'; 
+require_once '../admin/partials/side-bar.php';
+
 ?>
 
 <!-- Template Files here -->
@@ -43,3 +44,4 @@ require_once '../admin/partials/header.php';
     </div>    
 </main>
 <!-- Template Files here -->
+<?php require_once '../admin/partials/footer.php'; ?>
