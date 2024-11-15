@@ -1,61 +1,103 @@
-<?php    
-    // Database Connection
-    function db_connect() {
-        $host = 'localhost';
-        $user = 'root';
-        $password = 'dct-ccs-finals'; // Default for Laragon
-        $database = 'dct-ccs-finals';
+<?php
 
-        echo "Host: $host<br>";
-        echo "User: $user<br>";
-        echo "Password: $password<br>";
-        echo "Database: $database<br>";
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
-        $connection = new mysqli($host, $user, $password, $database);
+// Database Connection
+function db_connect() {
+    $host = 'localhost';
+    $user = 'root';
+    $password = 'dct-ccs-finals'; // Default for Laragon
+    $database = 'dct-ccs-finals';
 
-        if ($connection->connect_error) {
-            die("Connection failed: " . $connection->connect_error);
-        }
+    $connection = new mysqli($host, $user, $password, $database);
 
-        return $connection;
-    }
-    // Authenticate User
-    function authenticate_user($email, $password) {
-        $connection = db_connect();
-        $password_hash = md5($password); // Hash the password
-
-        $query = "SELECT * FROM users WHERE email = ? AND password = ?";
-        $stmt = $connection->prepare($query);
-        $stmt->bind_param('ss', $email, $password_hash);
-        $stmt->execute();
-        $result = $stmt->get_result();
-
-        if ($result->num_rows > 0) {
-            return $result->fetch_assoc(); // Return user data
-        }
-
-        return false; // Login failed
+    if ($connection->connect_error) {
+        die("Connection failed: " . $connection->connect_error);
     }
 
-    // Start Session for Authenticated User
-    function login_user($user) {
-        session_start();
-        $_SESSION['user_id'] = $user['id'];
-        $_SESSION['name'] = $user['name'];
-        $_SESSION['email'] = $user['email'];
+    return $connection;
+}
+
+// Authenticate User from Database
+function authenticate_user($email, $password) {
+    $connection = db_connect();
+    $password_hash = md5($password); // MD5 hash for password
+
+    $query = "SELECT * FROM users WHERE email = ? AND password = ?";
+    $stmt = $connection->prepare($query);
+    $stmt->bind_param('ss', $email, $password_hash);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($result->num_rows > 0) {
+        return $result->fetch_assoc(); // Return user data
     }
 
-    // Check if User is Logged In
-    function is_logged_in() {
-        session_start();
-        return isset($_SESSION['user_id']);
-    }
+    return false; // Login failed
+}
 
-    // Logout Function
-    function logout_user() {
-        session_start();
-        session_destroy();
-        header("Location: index.php");
-        exit();
+// Login User (Session Management)
+function login_user($user) {
+    $_SESSION['user_id'] = $user['id'];
+    $_SESSION['name'] = $user['name'];
+    $_SESSION['email'] = $user['email'];
+}
+
+// Check if User is Logged In
+function is_logged_in() {
+    return isset($_SESSION['user_id']);
+}
+
+// Logout Function
+function logout_user() {
+    session_start();
+    session_destroy();
+    header("Location: index.php");
+    exit();
+}
+
+// Reusable Function for Dismissible Alert Messages
+function renderAlert($message, $type = 'danger') {
+    if (empty($message)) {
+        return '';
     }
+    return '
+        <div class="alert alert-' . $type . ' alert-dismissible fade show" role="alert">
+            ' . htmlspecialchars($message) . '
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    ';
+}
+
+// Validate Email and Password Inputs
+function validateLoginCredentials($email, $password) {
+    $errors = [];
+    if (empty($email)) {
+        $errors[] = "Email is required.";
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $errors[] = "Invalid email format.";
+    }
+    if (empty($password)) {
+        $errors[] = "Password is required.";
+    }
+    return $errors;
+}
+
+// Display Multiple Errors as Alerts
+function displayErrors($errors) {
+    if (empty($errors)) {
+        return '';
+    }
+    $html = '<div class="alert alert-danger alert-dismissible fade show" role="alert">';
+    $html .= '<strong>Validation Errors:</strong><ul>';
+    foreach ($errors as $error) {
+        $html .= '<li>' . htmlspecialchars($error) . '</li>';
+    }
+    $html .= '</ul>';
+    $html .= '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>';
+    $html .= '</div>';
+    return $html;
+}
 ?>
