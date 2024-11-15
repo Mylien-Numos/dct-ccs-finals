@@ -2,6 +2,7 @@
 require_once '../admin/partials/header.php'; 
 require_once '../admin/partials/side-bar.php';
 
+guard()
 ?>
 
 <!-- Template Files here -->

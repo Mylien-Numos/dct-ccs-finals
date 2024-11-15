@@ -45,18 +45,26 @@ function login_user($user) {
     $_SESSION['email'] = $user['email'];
 }
 
+
 // Check if User is Logged In
-function is_logged_in() {
-    return isset($_SESSION['user_id']);
+function guard() {
+    if (!isset($_SESSION['user_id'])) {
+        header("Location: /dct-ccs-finals/index.php"); // Redirect to root login page
+        exit();
+    }
 }
+
 
 // Logout Function
 function logout_user() {
-    session_start();
-    session_destroy();
-    header("Location: index.php");
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start(); // Start the session if not already started
+    }
+    session_destroy(); // Destroy the session
+    header("Location:../index.php"); // Redirect to root login page
     exit();
 }
+
 
 // Reusable Function for Dismissible Alert Messages
 function renderAlert($message, $type = 'danger') {
