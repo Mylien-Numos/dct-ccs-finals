@@ -11,7 +11,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])) {
 
         if ($user) {
             login_user($user);
-            header("Location: dashboard.php"); // Redirect to dashboard
+            header("Location: admin/dashboard.php"); // Redirect to dashboard
             exit();
         } else {
             $error_message = "Invalid email or password.";
