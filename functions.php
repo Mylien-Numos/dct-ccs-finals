@@ -3,7 +3,7 @@
     function db_connect() {
         $host = 'localhost';
         $user = 'root';
-        $password = ''; // Default for Laragon
+        $password = 'dct-ccs-finals'; // Default for Laragon
         $database = 'dct-ccs-finals';
 
         echo "Host: $host<br>";
