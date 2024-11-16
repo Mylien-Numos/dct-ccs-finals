@@ -14,7 +14,7 @@
                 </li>
                 <li class="nav-item">
                     <a class="nav-link d-flex align-items-center gap-2"<?php echo basename($_SERVER['PHP_SELF']) == 'add.php' ? 'active' : ''; ?>" href="../admin/subject/add.php">
-                        <i class="fa-solid fa-book-open"></i> <!-- Added icon here -->
+                        <i class="fa-solid fa-book-open me-2 fa-fw"></i> <!-- Added icon here -->
                         Subjects
                     </a>
                 </li>
