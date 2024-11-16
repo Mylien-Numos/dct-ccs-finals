@@ -13,7 +13,8 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                <a class="nav-link d-flex align-items-center gap-2" href="../admin/subject/add.php">>
+                    <a class="nav-link d-flex align-items-center gap-2" href="../admin/subject/add.php">
+                        <i class="fa-solid fa-book-open"></i> <!-- Added icon here -->
                         Subjects
                     </a>
                 </li>
