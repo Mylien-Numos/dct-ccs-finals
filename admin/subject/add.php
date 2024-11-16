@@ -33,13 +33,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_subject'])) {
 
             if ($stmt->execute()) {
                 $success_message = "Subject added successfully!";
+                // Clear the fields after successful submission
+                $subject_code = '';
+                $subject_name = '';
             } else {
                 $error_message = "Error adding subject. Please try again.";
             }
         }
     }
 }
-
 // Fetch subjects to display in the list
 $connection = db_connect();
 $query = "SELECT * FROM subjects";
