@@ -15,6 +15,14 @@ if ($subject_result && $row = $subject_result->fetch_assoc()) {
     $subject_count = $row['subject_count'];
 }
 
+// Fetch the number of students
+$student_count_query = "SELECT COUNT(*) as student_count FROM students";
+$student_result = $connection->query($student_count_query);
+$student_count = 0;
+if ($student_result && $row = $student_result->fetch_assoc()) {
+    $student_count = $row['student_count'];
+}
+
 ?>
 
 <!-- Template Files here -->
@@ -33,8 +41,8 @@ if ($subject_result && $row = $subject_result->fetch_assoc()) {
         <div class="col-12 col-xl-3">
             <div class="card border-primary mb-3">
                 <div class="card-header bg-primary text-white border-primary">Number of Students:</div>
-                <div class="card-body text-success">
-                    <h5 class="card-title">0</h5>
+                <div class="card-body text-primary">
+                    <h5 class="card-title"><?php echo htmlspecialchars($student_count); ?></h5>
                 </div>
             </div>
         </div>
