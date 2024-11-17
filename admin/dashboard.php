@@ -23,8 +23,18 @@ if ($student_result && $row = $student_result->fetch_assoc()) {
     $student_count = $row['student_count'];
 }
 
-// Query to fetch the number of unique students with failing grades
-$failed_students_query = "SELECT COUNT(DISTINCT student_id) AS failed_students FROM students_subjects WHERE grade < 75";
+// Query to fetch the number of students who failed based on their average grades
+$failed_students_query = "
+    SELECT COUNT(*) AS failed_students
+    FROM (
+        SELECT 
+            students.id AS student_id,
+            AVG(students_subjects.grade) AS average_grade
+        FROM students
+        LEFT JOIN students_subjects ON students.id = students_subjects.student_id
+        GROUP BY students.id
+        HAVING average_grade < 75
+    ) AS failed";
 $failed_students_result = $connection->query($failed_students_query);
 $failed_students = $failed_students_result->fetch_assoc()['failed_students'];
 
