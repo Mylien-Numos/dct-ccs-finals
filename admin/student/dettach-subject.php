@@ -22,7 +22,7 @@ if (isset($_GET['id'])) {
         die("Database connection failed: " . $connection->connect_error);
     }
 
-    $query = "SELECT students.student_id, students.first_name, students.last_name, 
+    $query = "SELECT students.id AS student_id, students.first_name, students.last_name, 
                      subjects.subject_code, subjects.subject_name 
               FROM students_subjects 
               JOIN students ON students_subjects.student_id = students.id 
@@ -43,7 +43,7 @@ if (isset($_GET['id'])) {
             $delete_stmt->bind_param('i', $record_id);
 
             if ($delete_stmt->execute()) {
-                // Redirect directly to the attach page
+                // Redirect directly to the attach page with the correct student ID
                 header("Location: attach-subject.php?id=" . htmlspecialchars($record['student_id']));
                 exit;
             } else {
@@ -52,7 +52,7 @@ if (isset($_GET['id'])) {
         }
     } else {
         // Redirect directly to the attach page if no record is found
-        header("Location: attach-subject.php?id=" . htmlspecialchars($_GET['id']));
+        header("Location: attach-subject.php");
         exit;
     }
 } else {
