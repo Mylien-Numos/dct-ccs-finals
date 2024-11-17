@@ -23,6 +23,11 @@ if ($student_result && $row = $student_result->fetch_assoc()) {
     $student_count = $row['student_count'];
 }
 
+// Query to fetch the number of unique students with failing grades
+$failed_students_query = "SELECT COUNT(DISTINCT student_id) AS failed_students FROM students_subjects WHERE grade < 75";
+$failed_students_result = $connection->query($failed_students_query);
+$failed_students = $failed_students_result->fetch_assoc()['failed_students'];
+
 ?>
 
 <!-- Template Files here -->
@@ -50,7 +55,7 @@ if ($student_result && $row = $student_result->fetch_assoc()) {
             <div class="card border-danger mb-3">
                 <div class="card-header bg-danger text-white border-danger">Number of Failed Students:</div>
                 <div class="card-body text-danger">
-                    <h5 class="card-title">0</h5>
+                    <h5 class="card-title"><?php echo htmlspecialchars($failed_students); ?></h5>
                 </div>
             </div>
         </div>
