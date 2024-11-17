@@ -4,6 +4,10 @@ require_once '../admin/partials/side-bar.php';
 
 guard();
 
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 // Database connection
 $connection = db_connect();
 
@@ -35,9 +39,29 @@ $failed_students_query = "
         GROUP BY students.id
         HAVING average_grade < 75
     ) AS failed";
+$failed_students = 0;
 $failed_students_result = $connection->query($failed_students_query);
-$failed_students = $failed_students_result->fetch_assoc()['failed_students'];
+if ($failed_students_result && $row = $failed_students_result->fetch_assoc()) {
+    $failed_students = $row['failed_students'];
+}
 
+// Query to fetch the number of students who passed based on their average grades
+$passed_students_query = "
+    SELECT COUNT(*) AS passed_students
+    FROM (
+        SELECT 
+            students.id AS student_id,
+            AVG(students_subjects.grade) AS average_grade
+        FROM students
+        LEFT JOIN students_subjects ON students.id = students_subjects.student_id
+        GROUP BY students.id
+        HAVING average_grade >= 75
+    ) AS passed";
+$passed_students = 0;
+$passed_students_result = $connection->query($passed_students_query);
+if ($passed_students_result && $row = $passed_students_result->fetch_assoc()) {
+    $passed_students = $row['passed_students'];
+}
 ?>
 
 <!-- Template Files here -->
@@ -73,7 +97,7 @@ $failed_students = $failed_students_result->fetch_assoc()['failed_students'];
             <div class="card border-success mb-3">
                 <div class="card-header bg-success text-white border-success">Number of Passed Students:</div>
                 <div class="card-body text-success">
-                    <h5 class="card-title">0></h5>
+                    <h5 class="card-title"><?php echo htmlspecialchars($passed_students); ?></h5>
                 </div>
             </div>
         </div>
