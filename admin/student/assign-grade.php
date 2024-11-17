@@ -46,19 +46,29 @@ if (!empty($record_id)) {
 
         // Handle form submission for assigning or updating the grade
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['assign_grade'])) {
-            $grade = floatval($_POST['grade']);
+            $grade = $_POST['grade'];
 
-            // Update the grade in the database
-            $update_query = "UPDATE students_subjects SET grade = ? WHERE id = ?";
-            $update_stmt = $connection->prepare($update_query);
-            $update_stmt->bind_param('di', $grade, $record_id);
-
-            if ($update_stmt->execute()) {
-                // Redirect to attach page after successful grade assignment with correct student ID
-                header("Location: attach-subject.php?id=" . htmlspecialchars($record['student_id']));
-                exit;
+            // Validation for grade
+            if (empty($grade)) {
+                $error_message = "Grade cannot be blank.";
+            } elseif (!is_numeric($grade) || $grade < 0 || $grade > 100) {
+                $error_message = "Grade must be a numeric value between 0 and 100.";
             } else {
-                $error_message = "Failed to assign the grade. Please try again.";
+                $grade = floatval($grade);
+
+                // Update the grade in the database
+                $update_query = "UPDATE students_subjects SET grade = ? WHERE id = ?";
+                $update_stmt = $connection->prepare($update_query);
+                $update_stmt->bind_param('di', $grade, $record_id);
+
+                if ($update_stmt->execute()) {
+                    // Redirect to attach page after successful grade assignment with correct student ID
+                    $success_message = "Grade successfully assigned.";
+                    header("Location: attach-subject.php?id=" . htmlspecialchars($record['student_id']));
+                    exit;
+                } else {
+                    $error_message = "Failed to assign the grade. Please try again.";
+                }
             }
         }
     } else {
@@ -110,7 +120,7 @@ if (!empty($record_id)) {
                     <input type="hidden" name="id" value="<?php echo htmlspecialchars($record_id); ?>">
                     <div class="mb-3">
                         <label for="grade" class="form-label">Grade</label>
-                        <input type="number" step="0.01" class="form-control" id="grade" name="grade" value="<?php echo htmlspecialchars($record['grade']); ?>" required>
+                        <input type="number" step="0.01" class="form-control" id="grade" name="grade" value="<?php echo htmlspecialchars($record['grade']); ?>">
                     </div>
                     <a href="attach-subject.php?id=<?php echo htmlspecialchars($record['student_id']); ?>" class="btn btn-secondary">Cancel</a>
                     <button type="submit" name="assign_grade" class="btn btn-primary">Assign Grade to Subject</button>
