@@ -46,13 +46,26 @@ function login_user($user) {
 }
 
 
+// Get the base URL dynamically
+function getBaseURL() {
+    // Check if HTTPS is enabled
+    $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
+    // Build the base URL using host and server name
+    $host = $_SERVER['HTTP_HOST'];
+    return $protocol . $host . '/'; // Ensure it points to the root
+}
+
 // Check if User is Logged In
 function guard() {
     if (!isset($_SESSION['user_id'])) {
-        header("Location: /dct-ccs-finals/index.php"); // Redirect to root login page
+        // Use the base URL to redirect
+        $baseURL = getBaseURL();
+        header("Location: " . $baseURL . "index.php"); // Redirect to the login page dynamically
         exit();
     }
 }
+
+
 
 
 // Logout Function
