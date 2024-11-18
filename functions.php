@@ -55,18 +55,15 @@ function getBaseURL() {
     return $protocol . $host . '/'; // Ensure it points to the root
 }
 
-// Check if User is Logged In
+// Check if the user is logged in
 function guard() {
-    if (!isset($_SESSION['user_id'])) {
+    if (!isset($_SESSION['email']) || empty($_SESSION['email'])) {
         // Use the base URL to redirect
         $baseURL = getBaseURL();
-        header("Location: " . $baseURL . "index.php"); // Redirect to the login page dynamically
+        header("Location: " . $baseURL); // Redirect to the base URL
         exit();
     }
 }
-
-
-
 
 // Logout Function
 function logout_user() {
