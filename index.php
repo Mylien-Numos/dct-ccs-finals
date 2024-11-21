@@ -1,33 +1,12 @@
 <?php
-// Include the PHP functions
-include('functions.php');
+session_start();
+require_once 'functions.php';
 
-// // Handle login attempt
-// $errors = [];
-// if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])) {
-//     // Get the email and password from the form and sanitize them
-//     $email = sanitizeInput($_POST['email']);
-//     $password = sanitizeInput($_POST['password']);
-
-//     // Check if the fields are empty
-//     if (empty($email) || empty($password)) {
-//         $errors[] = "Both email and password are required.";
-//     } else {
-//         // Validate the credentials
-//         $errors = validateLoginCredentials($email, $password);
-
-//         if (empty($errors)) {
-//             // Check if the credentials are correct
-//             if (checkLoginCredentials($email, $password)) {
-//                 $_SESSION['email'] = $email; // Store email in session
-//                 header("Location: dashboard.php"); // Redirect to another page after login
-//                 exit;
-//             } else {
-//                 $errors[] = "Invalid email or password.";
-//             }
-//         }
-//     }
-// }
+if (isset($_POST['login'])) {
+    $email = postData('email');
+    $password = postData('password');
+    login($email, $password);
+}
 ?>
 
 <!DOCTYPE html>
@@ -37,24 +16,29 @@ include('functions.php');
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <style>
+        .error-message {
+            font-size: 1rem; /* Adjust this value to change the size */
+        }
+    </style>
     <title>Login</title>
 </head>
 
 <body class="bg-secondary-subtle">
     <div class="d-flex align-items-center justify-content-center vh-100">
         <div class="col-3">
-            <!-- Display errors if any -->
-            <?php //echo displayErrors($errors); ?>
+            <!-- Server-Side Validation Messages will display here -->
+            <?php echo displayErrors([]); ?>
             <div class="card">
                 <div class="card-body">
                     <h1 class="h3 mb-4 fw-normal">Login</h1>
-                    <form method="post" action="">
+                    <form method="post">
                         <div class="form-floating mb-3">
-                            <input type="text" class="form-control" id="email" name="email" placeholder="user1@example.com" value="<?php echo isset($_POST['email']) ? $_POST['email'] : ''; ?>">
+                            <input type="text" class="form-control" id="email" name="email" placeholder="user1@example.com" value="<?php echo htmlspecialchars($email ?? ''); ?>">
                             <label for="email">Email address</label>
                         </div>
                         <div class="form-floating mb-3">
-                            <input type="password" class="form-control" id="password" name="password" placeholder="Password">
+                            <input type="password" class="form-control" id="password" name="password" placeholder="Password" value="<?php echo htmlspecialchars($password ?? ''); ?>">
                             <label for="password">Password</label>
                         </div>
                         <div class="form-floating mb-3">
