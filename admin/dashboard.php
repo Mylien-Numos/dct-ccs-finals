@@ -16,7 +16,7 @@ require './partials/side-bar.php';
 $numSubjects = 0; // Replace with actual query for subjects count
 $numStudents = 0; // Replace with actual query for students count
 $numFailedStudents = 0; // Replace with actual query for failed students count
-$numPassedStudents = 0; // Replace with actual query for passed students count
+$numPassedStudents = 1; // Replace with actual query for passed students count
 ?>
 
 <!-- Main Content -->
