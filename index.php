@@ -2,32 +2,32 @@
 // Include the PHP functions
 include('functions.php');
 
-// Handle login attempt
-$errors = [];
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])) {
-    // Get the email and password from the form and sanitize them
-    $email = sanitizeInput($_POST['email']);
-    $password = sanitizeInput($_POST['password']);
+// // Handle login attempt
+// $errors = [];
+// if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])) {
+//     // Get the email and password from the form and sanitize them
+//     $email = sanitizeInput($_POST['email']);
+//     $password = sanitizeInput($_POST['password']);
 
-    // Check if the fields are empty
-    if (empty($email) || empty($password)) {
-        $errors[] = "Both email and password are required.";
-    } else {
-        // Validate the credentials
-        $errors = validateLoginCredentials($email, $password);
+//     // Check if the fields are empty
+//     if (empty($email) || empty($password)) {
+//         $errors[] = "Both email and password are required.";
+//     } else {
+//         // Validate the credentials
+//         $errors = validateLoginCredentials($email, $password);
 
-        if (empty($errors)) {
-            // Check if the credentials are correct
-            if (checkLoginCredentials($email, $password)) {
-                $_SESSION['email'] = $email; // Store email in session
-                header("Location: dashboard.php"); // Redirect to another page after login
-                exit;
-            } else {
-                $errors[] = "Invalid email or password.";
-            }
-        }
-    }
-}
+//         if (empty($errors)) {
+//             // Check if the credentials are correct
+//             if (checkLoginCredentials($email, $password)) {
+//                 $_SESSION['email'] = $email; // Store email in session
+//                 header("Location: dashboard.php"); // Redirect to another page after login
+//                 exit;
+//             } else {
+//                 $errors[] = "Invalid email or password.";
+//             }
+//         }
+//     }
+// }
 ?>
 
 <!DOCTYPE html>
@@ -44,7 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])) {
     <div class="d-flex align-items-center justify-content-center vh-100">
         <div class="col-3">
             <!-- Display errors if any -->
-            <?php echo displayErrors($errors); ?>
+            <?php //echo displayErrors($errors); ?>
             <div class="card">
                 <div class="card-body">
                     <h1 class="h3 mb-4 fw-normal">Login</h1>
