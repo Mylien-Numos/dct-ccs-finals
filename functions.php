@@ -1,27 +1,33 @@
 <?php
 if (session_status() == PHP_SESSION_NONE) {
     session_start();   
-} 
+}
 
-function postData($key){
+// Function to safely retrieve POST data
+function postData($key) {
     return $_POST["$key"] ?? '';
 }
 
-function guardLogin(){
-    $dashboardPage = 'admin/dashboard.php';
+// Restrict logged-in users from accessing the login page
+function guardLogin() {
+    $dashboardPage = '../dashboard/dashboard.php'; // Adjusted to feature branch
 
-    if(isset($_SESSION['email'])){
+    if (isset($_SESSION['email'])) {
         header("Location: $dashboardPage");
-    } 
-}
-
-function guardDashboard(){
-    $loginPage = '../index.php';
-    if(!isset($_SESSION['email'])){
-        header("Location: $loginPage");
+        exit;
     }
 }
 
+// Restrict non-logged-in users from accessing the dashboard
+function guardDashboard() {
+    $loginPage = '../index.php'; // Redirect to login page if not authenticated
+    if (!isset($_SESSION['email'])) {
+        header("Location: $loginPage");
+        exit;
+    }
+}
+
+// Establish database connection
 function getConnection() {
     $host = 'localhost'; 
     $dbName = 'dct-ccs-finals'; 
@@ -42,16 +48,17 @@ function getConnection() {
     }
 }
 
+// Handle login functionality
 function login($email, $password) {
     $validateLogin = validateLoginCredentials($email, $password);
 
-    if(count($validateLogin) > 0){
+    if (count($validateLogin) > 0) {
         echo displayErrors($validateLogin);
         return;
     }
 
     $conn = getConnection();
-    $hashedPassword = md5($password);
+    $hashedPassword = md5($password); // Hash password to match stored value
 
     $query = "SELECT * FROM users WHERE email = :email AND password = :password";
     $stmt = $conn->prepare($query);
@@ -62,13 +69,15 @@ function login($email, $password) {
     $user = $stmt->fetch();
 
     if ($user) {
-        $_SESSION['email'] = $user['email'];
-        header("Location: admin/dashboard.php");
+        $_SESSION['email'] = $user['email']; // Store user session
+        header("Location: ../dashboard/dashboard.php"); // Redirect to dashboard
+        exit;
     } else {
         echo displayErrors(["Invalid email or password"]);
     }
 }
 
+// Validate login credentials
 function validateLoginCredentials($email, $password) {
     $errors = [];
     
@@ -85,10 +94,11 @@ function validateLoginCredentials($email, $password) {
     return $errors;
 }
 
+// Display errors with styling
 function displayErrors($errors) {
     if (empty($errors)) return "";
 
-    // Custom error style to match the desired design with top center positioning
+    // Styled error message
     $errorHtml = '<div class="alert alert-danger alert-dismissible fade show error-message" role="alert" style="background-color: #f8d7da; color: #721c24; border-color: #f5c6cb; border-radius: 0.375rem; width: 350px; padding: 10px 20px; font-size: 1rem; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 9999;">';
     $errorHtml .= '<strong style="font-weight: 600;">System Errors</strong><ul style="margin-top: 10px;">';
 
