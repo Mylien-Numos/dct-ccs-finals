@@ -1,33 +1,32 @@
 <?php
 if (session_status() == PHP_SESSION_NONE) {
     session_start();   
-}
+} 
 
-// Function to safely retrieve POST data
+// Retrieve POST data safely
 function postData($key) {
-    return $_POST["$key"] ?? '';
+    return $_POST[$key] ?? '';
 }
 
-// Restrict logged-in users from accessing the login page
+// Redirect users to the dashboard if they are already logged in
 function guardLogin() {
-    $dashboardPage = '../dashboard/dashboard.php'; // Adjusted to feature branch
-
+    $dashboardPage = '../dashboard/dashboard.php'; // Correct path to the feature/dashboard
     if (isset($_SESSION['email'])) {
         header("Location: $dashboardPage");
         exit;
     }
 }
 
-// Restrict non-logged-in users from accessing the dashboard
+// Redirect users to the login page if not authenticated
 function guardDashboard() {
-    $loginPage = '../index.php'; // Redirect to login page if not authenticated
+    $loginPage = '../index.php'; // Adjust path as needed
     if (!isset($_SESSION['email'])) {
         header("Location: $loginPage");
         exit;
     }
 }
 
-// Establish database connection
+// Establish a connection to the database
 function getConnection() {
     $host = 'localhost'; 
     $dbName = 'dct-ccs-finals'; 
@@ -58,7 +57,7 @@ function login($email, $password) {
     }
 
     $conn = getConnection();
-    $hashedPassword = md5($password); // Hash password to match stored value
+    $hashedPassword = md5($password);
 
     $query = "SELECT * FROM users WHERE email = :email AND password = :password";
     $stmt = $conn->prepare($query);
@@ -69,8 +68,9 @@ function login($email, $password) {
     $user = $stmt->fetch();
 
     if ($user) {
-        $_SESSION['email'] = $user['email']; // Store user session
-        header("Location: ../dashboard/dashboard.php"); // Redirect to dashboard
+        $_SESSION['email'] = $user['email'];
+        // Redirect to the dashboard in the feature branch
+        header("Location: ../dashboard/dashboard.php"); 
         exit;
     } else {
         echo displayErrors(["Invalid email or password"]);
@@ -94,11 +94,10 @@ function validateLoginCredentials($email, $password) {
     return $errors;
 }
 
-// Display errors with styling
+// Display error messages
 function displayErrors($errors) {
     if (empty($errors)) return "";
 
-    // Styled error message
     $errorHtml = '<div class="alert alert-danger alert-dismissible fade show error-message" role="alert" style="background-color: #f8d7da; color: #721c24; border-color: #f5c6cb; border-radius: 0.375rem; width: 350px; padding: 10px 20px; font-size: 1rem; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 9999;">';
     $errorHtml .= '<strong style="font-weight: 600;">System Errors</strong><ul style="margin-top: 10px;">';
 
