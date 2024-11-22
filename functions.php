@@ -3,30 +3,25 @@ if (session_status() == PHP_SESSION_NONE) {
     session_start();   
 } 
 
-// Retrieve POST data safely
-function postData($key) {
-    return $_POST[$key] ?? '';
+function postData($key){
+    return $_POST["$key"] ?? '';
 }
 
-// Redirect users to the dashboard if they are already logged in
-function guardLogin() {
-    $dashboardPage = '../dashboard/dashboard.php'; // Correct path to the feature/dashboard
-    if (isset($_SESSION['email'])) {
+function guardLogin(){
+    $dashboardPage = 'admin/dashboard.php';
+
+    if(isset($_SESSION['email'])){
         header("Location: $dashboardPage");
-        exit;
-    }
+    } 
 }
 
-// Redirect users to the login page if not authenticated
-function guardDashboard() {
-    $loginPage = '../index.php'; // Adjust path as needed
-    if (!isset($_SESSION['email'])) {
+function guardDashboard(){
+    $loginPage = '../index.php';
+    if(!isset($_SESSION['email'])){
         header("Location: $loginPage");
-        exit;
     }
 }
 
-// Establish a connection to the database
 function getConnection() {
     $host = 'localhost'; 
     $dbName = 'dct-ccs-finals'; 
@@ -47,11 +42,10 @@ function getConnection() {
     }
 }
 
-// Handle login functionality
 function login($email, $password) {
     $validateLogin = validateLoginCredentials($email, $password);
 
-    if (count($validateLogin) > 0) {
+    if(count($validateLogin) > 0){
         echo displayErrors($validateLogin);
         return;
     }
@@ -69,15 +63,12 @@ function login($email, $password) {
 
     if ($user) {
         $_SESSION['email'] = $user['email'];
-        // Redirect to the dashboard in the feature branch
-        header("Location: ../dashboard/dashboard.php"); 
-        exit;
+        header("Location: admin/dashboard.php");
     } else {
         echo displayErrors(["Invalid email or password"]);
     }
 }
 
-// Validate login credentials
 function validateLoginCredentials($email, $password) {
     $errors = [];
     
@@ -94,10 +85,10 @@ function validateLoginCredentials($email, $password) {
     return $errors;
 }
 
-// Display error messages
 function displayErrors($errors) {
     if (empty($errors)) return "";
 
+    // Custom error style to match the desired design with top center positioning
     $errorHtml = '<div class="alert alert-danger alert-dismissible fade show error-message" role="alert" style="background-color: #f8d7da; color: #721c24; border-color: #f5c6cb; border-radius: 0.375rem; width: 350px; padding: 10px 20px; font-size: 1rem; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 9999;">';
     $errorHtml .= '<strong style="font-weight: 600;">System Errors</strong><ul style="margin-top: 10px;">';
 
