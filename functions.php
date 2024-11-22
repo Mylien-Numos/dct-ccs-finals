@@ -1,118 +1,103 @@
 <?php
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();   
+} 
 
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
+function postData($key){
+    return $_POST["$key"] ?? '';
 }
 
-// Database Connection
-function db_connect() {
-    $host = 'localhost';
-    $user = 'root';
-    $password = 'dct-ccs-finals'; // Default for Laragon
-    $database = 'dct-ccs-finals';
+function guardLogin(){
+    $dashboardPage = 'admin/dashboard.php';
 
-    $connection = new mysqli($host, $user, $password, $database);
+    if(isset($_SESSION['email'])){
+        header("Location: $dashboardPage");
+    } 
+}
 
-    if ($connection->connect_error) {
-        die("Connection failed: " . $connection->connect_error);
+function guardDashboard(){
+    $loginPage = '../index.php';
+    if(!isset($_SESSION['email'])){
+        header("Location: $loginPage");
+    }
+}
+
+function getConnection() {
+    $host = 'localhost'; 
+    $dbName = 'dct-ccs-finals'; 
+    $username = 'root'; 
+    $password = ''; 
+    $charset = 'utf8mb4'; 
+    
+    try {
+        $dsn = "mysql:host=$host;dbname=$dbName;charset=$charset";
+        $options = [
+            PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            PDO::ATTR_EMULATE_PREPARES   => false,
+        ];
+        return new PDO($dsn, $username, $password, $options);
+    } catch (PDOException $e) {
+        die("Connection failed: " . $e->getMessage());
+    }
+}
+
+function login($email, $password) {
+    $validateLogin = validateLoginCredentials($email, $password);
+
+    if(count($validateLogin) > 0){
+        echo displayErrors($validateLogin);
+        return;
     }
 
-    return $connection;
-}
+    $conn = getConnection();
+    $hashedPassword = md5($password);
 
-// Authenticate User from Database
-function authenticate_user($email, $password) {
-    $connection = db_connect();
-    $password_hash = md5($password); // MD5 hash for password
-
-    $query = "SELECT * FROM users WHERE email = ? AND password = ?";
-    $stmt = $connection->prepare($query);
-    $stmt->bind_param('ss', $email, $password_hash);
+    $query = "SELECT * FROM users WHERE email = :email AND password = :password";
+    $stmt = $conn->prepare($query);
+    $stmt->bindParam(':email', $email);
+    $stmt->bindParam(':password', $hashedPassword);
+    
     $stmt->execute();
-    $result = $stmt->get_result();
+    $user = $stmt->fetch();
 
-    if ($result->num_rows > 0) {
-        return $result->fetch_assoc(); // Return user data
-    }
-
-    return false; // Login failed
-}
-
-// Login User (Session Management)
-function login_user($user) {
-    $_SESSION['user_id'] = $user['id'];
-    $_SESSION['name'] = $user['name'];
-    $_SESSION['email'] = $user['email'];
-}
-
-
-// Check if User is Logged In
-function guard() {
-    if (!isset($_SESSION['user_id'])) {
-        header("Location: /dct-ccs-finals/index.php"); // Redirect to root login page
-        exit();
+    if ($user) {
+        $_SESSION['email'] = $user['email'];
+        header("Location: admin/dashboard.php");
+    } else {
+        echo displayErrors(["Invalid email or password"]);
     }
 }
 
-
-// Logout Function
-function logout_user() {
-    if (session_status() === PHP_SESSION_NONE) {
-        session_start(); // Start the session if not already started
-    }
-    session_destroy(); // Destroy the session
-    header("Location:../index.php"); // Redirect to root login page
-    exit();
-}
-
-
-// Reusable Function for Dismissible Alert Messages
-function renderAlert($message, $type = 'danger') {
-    if (empty($message)) {
-        return '';
-    }
-    return '
-        <div class="alert alert-' . $type . ' alert-dismissible fade show" role="alert">
-            ' . htmlspecialchars($message) . '
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    ';
-}
-
-// Validate Email and Password Inputs
 function validateLoginCredentials($email, $password) {
     $errors = [];
+    
     if (empty($email)) {
         $errors[] = "Email is required.";
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $errors[] = "Invalid email format.";
     }
+    
     if (empty($password)) {
         $errors[] = "Password is required.";
     }
+    
     return $errors;
 }
 
-// Display Multiple Errors as Alerts
 function displayErrors($errors) {
-    if (empty($errors)) {
-        return '';
-    }
-    $html = '<div class="alert alert-danger alert-dismissible fade show" role="alert">';
-    $html .= '<strong>Validation Errors:</strong><ul>';
-    foreach ($errors as $error) {
-        $html .= '<li>' . htmlspecialchars($error) . '</li>';
-    }
-    $html .= '</ul>';
-    $html .= '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>';
-    $html .= '</div>';
-    return $html;
-}
+    if (empty($errors)) return "";
 
-function checkUserSessionIsActive() {
-    if (isset($_SESSION['email']) && !empty($_SESSION['email'])) {
-        header("Location: admin/dashboard.php");
-        exit;
+    // Custom error style to match the desired design with top center positioning
+    $errorHtml = '<div class="alert alert-danger alert-dismissible fade show error-message" role="alert" style="background-color: #f8d7da; color: #721c24; border-color: #f5c6cb; border-radius: 0.375rem; width: 350px; padding: 10px 20px; font-size: 1rem; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 9999;">';
+    $errorHtml .= '<strong style="font-weight: 600;">System Errors</strong><ul style="margin-top: 10px;">';
+
+    foreach ($errors as $error) {
+        $errorHtml .= '<li>' . htmlspecialchars($error) . '</li>';
     }
+
+    $errorHtml .= '</ul><button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" style="font-size: 1.25rem;"></button></div>';
+
+    return $errorHtml;
 }
 ?>
