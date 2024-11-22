@@ -1,14 +1,12 @@
 <?php
 if (session_status() == PHP_SESSION_NONE) {
     session_start();   
-}
+} 
 
-// Function to safely fetch POST data
 function postData($key){
     return $_POST["$key"] ?? '';
 }
 
-// Redirect to the dashboard if logged in
 function guardLogin(){
     $dashboardPage = 'admin/dashboard.php';
 
@@ -17,7 +15,6 @@ function guardLogin(){
     } 
 }
 
-// Redirect to login if not logged in
 function guardDashboard(){
     $loginPage = '../index.php';
     if(!isset($_SESSION['email'])){
@@ -25,7 +22,6 @@ function guardDashboard(){
     }
 }
 
-// Database connection function
 function getConnection() {
     $host = 'localhost'; 
     $dbName = 'dct-ccs-finals'; 
@@ -46,7 +42,6 @@ function getConnection() {
     }
 }
 
-// Function for user login
 function login($email, $password) {
     $validateLogin = validateLoginCredentials($email, $password);
 
@@ -74,7 +69,6 @@ function login($email, $password) {
     }
 }
 
-// Validate login credentials
 function validateLoginCredentials($email, $password) {
     $errors = [];
     
@@ -91,7 +85,6 @@ function validateLoginCredentials($email, $password) {
     return $errors;
 }
 
-// Display formatted error or success messages
 function displayErrors($errors) {
     if (empty($errors)) return "";
 
@@ -106,47 +99,5 @@ function displayErrors($errors) {
     $errorHtml .= '</ul><button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" style="font-size: 1.25rem;"></button></div>';
 
     return $errorHtml;
-}
-
-// Add a subject to the database
-function addSubject($subjectCode, $subjectName) {
-    $conn = getConnection();
-
-    try {
-        $query = "INSERT INTO subjects (subject_code, subject_name) VALUES (:subject_code, :subject_name)";
-        $stmt = $conn->prepare($query);
-        $stmt->bindParam(':subject_code', $subjectCode);
-        $stmt->bindParam(':subject_name', $subjectName);
-
-        return $stmt->execute(); // Returns true on success
-    } catch (PDOException $e) {
-        return false; // Returns false on failure
-    }
-}
-
-// Fetch all subjects from the database
-function fetchSubjects() {
-    $conn = getConnection();
-
-    try {
-        $query = "SELECT * FROM subjects ORDER BY subject_code ASC";
-        $stmt = $conn->query($query);
-
-        return $stmt->fetchAll(); // Returns an array of subjects
-    } catch (PDOException $e) {
-        return []; // Returns an empty array on failure
-    }
-}
-
-// Show alert messages
-function showAlert($type, $message) {
-    $alertClass = $type === 'success' ? 'alert-success' : 'alert-danger';
-
-    return "
-    <div class='alert $alertClass alert-dismissible fade show' role='alert'>
-        <strong>Notice:</strong> $message
-        <button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>
-    </div>
-    ";
 }
 ?>
